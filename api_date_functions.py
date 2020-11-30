@@ -1,15 +1,21 @@
 import datetime as dt
 
 
+# This function should take in the string representing the date & optional timezone info and convert it to an aware
+# datetime object. If there is no timezone information included, it will default to UTC+0
+
+def date_string_processor(date):
+    try:
+        date = dt.datetime.fromisoformat(date)
+    except:
+        return 'Input Error. Please format date strings as YYYY-MM-DD'
+    else:
+        if date.tzinfo is not None and date.tzinfo.utcoffset(date) is not None:
+            print('Aware datetime object')
+
+
 # Let's write the function to calculate the days between the dates. This function will take in ISO formatted datetime
 # strings YYYY-MM-DD[*HH[:MM[:SS[.fff[fff]]]][+HH:MM[:SS[.ffffff]]]]
-def days_between_dates(date1, date2):
-    date1 = dt.datetime.fromisoformat(date1)
-    date2 = dt.datetime.fromisoformat(date2)
-    timedelta = abs(date1 - date2)
-    return timedelta.days
-
-
 def time_between_dates(date1, date2, include_end_date=False, time_units='days', report_units='days'):
     try:
         date1 = dt.datetime.fromisoformat(date1)
@@ -27,7 +33,7 @@ def time_between_dates(date1, date2, include_end_date=False, time_units='days', 
             start, end = date1, date2
         if include_end_date:
             end = end + dt.timedelta(days=1)
-        timedelta = end-start
+        timedelta = end - start
         total_days = timedelta.days
         # Initialise a dictionary to track number of each weekday
         weekday_count = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
@@ -45,21 +51,25 @@ def time_between_dates(date1, date2, include_end_date=False, time_units='days', 
             total_weekdays += weekday_count[weekday]
         # Turn the results into a timedelta
         total_days = dt.timedelta(days=total_days)
-        total_weeks = dt.timedelta(days=total_weeks*7)
+        total_weeks = dt.timedelta(days=total_weeks * 7)
         total_weekdays = dt.timedelta(days=total_weekdays)
         # Call the function to change the units to what we want
-        return time_report_units(total_days, report_units),\
+        return time_report_units(total_days, report_units), \
                time_report_units(total_weekdays, report_units), \
-               time_report_units(total_weeks, report_units)
+               time_report_units(total_weeks, units = 'weeks')
+
 
 def time_report_units(timedelta, units='days'):
     if units == 'seconds':
         return timedelta.total_seconds()
     elif units == 'minutes':
-        return timedelta.total_seconds()//60
+        return timedelta.total_seconds() // 60
     elif units == 'hours':
-        return timedelta.total_seconds()//3600
-    elif units =='days':
+        return timedelta.total_seconds() // 3600
+    elif units == 'days':
         return timedelta.days
+    elif units == 'weeks':
+        return timedelta.total_seconds() // 604800
     elif units == 'years':
-        return timedelta.total_seconds()/31536000
+        return timedelta.total_seconds() / 31536000
+
